@@ -4,28 +4,32 @@
 clc; clear; close;
 start = tic;
 disp('running...');
-root = 'E:\Aamir\BMI\';
-savepath = 'E:\Aamir\BMI\';
+root = 'Z:\Aamir\BMI\';
+savepath = 'Z:\Aamir\BMI\';
 cd(root);
-blocks = { 'I076\Data\I076-201201-120931\'...
-          ,'I076\Data\I076-201201-141645\'...
-          ,'I076\Data\I076-201202-112106\'...
-          ,'I076\Data\I076-201202-142652\'...
-          ,'I076\Data\I076-201203-113433\'...
-          ,'I076\Data\I076-201203-131642\'...
-          ,'I076\Data\I076-201204-121406\'...
-          ,'I076\Data\I076-201204-141944\'...
-          ,'I076\Data\I076-201205-112030\'...
-          ,'I076\Data\I076-201205-125511\'}; 
+bmiBlocks =  { 'I076\Data\I076-201201-120931\'...
+              ,'I076\Data\I076-201202-112106\'...
+              ,'I076\Data\I076-201203-113433\'...
+              ,'I076\Data\I076-201205-112030\'...
+              ,'I086\Data\I086-210507-104527\'...
+              ,'I086\Data\I086-210511-120330\'...
+              ,'I086\Data\I086-210512-134507\'...
+              ,'I086\Data\I086-210513-121746\'...
+              ,'I086\Data\I086-210514-104903\'...
+              ,'I096\Data\I096-211102-112930\'...
+              ,'I096\Data\I096-211103-122447\'...
+              ,'I107\Data\I107-211208-151652\'...
+              ,'I107\Data\I107-211209-145631\'...
+              ,'I107\Data\I107-211210-121406\'}; 
           
-for j=1:length(blocks)
+for j=1:length(bmiBlocks)
   
   % display current block
-  disp(blocks{j});
+  disp(bmiBlocks{j});
   
   % Read Wave channel
-  W = dir([blocks{j},'WAV*.mat']);
-  load([root, blocks{j},W.name]);
+  W = dir([bmiBlocks{j},'WAV*.mat']);
+  load([root, bmiBlocks{j},W.name]);
   if exist('wav','var') 
     WAVE = wav;
     clear wav
@@ -41,18 +45,24 @@ for j=1:length(blocks)
   rtrials_start = rtrials_start/Fs;
 
   % Make save path
-  savedir = [savepath,blocks{j},'Videos\'];
+  savedir = [savepath,bmiBlocks{j},'Videos\'];
   if ~exist(savedir, 'dir')
     mkdir(savedir);
   end
   
   % Read trials from the video files and save them into separate .avi files
-  VID = dir([blocks{j},'*.avi']);
-  vidpath = [root,blocks{j},VID.name];
+  VID = dir([bmiBlocks{j},'*.avi']);
+  vidpath = [root,bmiBlocks{j},VID.name];
   vR = VideoReader(vidpath);
   for t=1:length(trial_start)
     frames = read(vR,[round((trial_start(t)-2)*vR.FrameRate),round((trial_start(t)+20)*vR.FrameRate)]);
-    vW = VideoWriter([savedir,'Trial_',num2str(t),'.avi'],'Motion JPEG AVI');
+    if t<10
+        vW = VideoWriter([savedir,'Trial_00',num2str(t),'.avi'],'Motion JPEG AVI');
+    elseif t>=10 && t<100
+        vW = VideoWriter([savedir,'Trial_0',num2str(t),'.avi'],'Motion JPEG AVI');        
+    elseif t>=100
+        vW = VideoWriter([savedir,'Trial_',num2str(t),'.avi'],'Motion JPEG AVI');        
+    end
     vW.FrameRate = vR.FrameRate;
     open(vW);
     writeVideo(vW,frames);
